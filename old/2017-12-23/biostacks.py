@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # biostacks    Trace block I/O and show stacks and total time.
 #              For Linux, uses BCC, eBPF.
@@ -119,7 +119,7 @@ struct key_t {
 BPF_HASH(counts, struct key_t);
 BPF_HASH(start, struct request *);
 BPF_HASH(info, struct request *, struct key_t);
-BPF_STACK_TRACE(stack_traces, STACK_STORAGE_SIZE)
+BPF_STACK_TRACE(stack_traces, STACK_STORAGE_SIZE);
 
 int trace_req_start(struct pt_regs *ctx, struct request *req) {
     u32 pid = bpf_get_current_pid_tgid();
@@ -277,9 +277,9 @@ for k, v in sorted(counts.items(), key=lambda counts: counts[1].value):
     if folded:
         # print folded stack output
         line = [k.name.decode()] + \
-            [b.sym(addr, k.tgid) for addr in reversed(user_stack)] + \
+            [b.sym(addr, k.tgid).decode() for addr in reversed(user_stack)] + \
             (need_delimiter and ["-"] or []) + \
-            [b.ksym(addr) for addr in reversed(kernel_stack)]
+            [b.ksym(addr).decode() for addr in reversed(kernel_stack)]
         print("%s %d" % (";".join(line), v.value))
     else:
         # print default multi-line stack output
